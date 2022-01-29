@@ -4,8 +4,17 @@ import appConfig from "../config.json";
 
 export default function ChatPage() {
   // Sua lógica vai aqui
-  const [mensagem, setsetMensagem] = React.useState("");
+  const [mensagem, setMensagem] = React.useState("");
+  const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
   // ./Sua lógica vai aqui
+
+  function handleNovaMensagem(novaMensagem) {
+    setListaDeMensagens([
+      ...listaDeMensagens, 
+      novaMensagem
+    ]);
+    setMensagem("");
+  }
   return (
     <Box
       styleSheet={{
@@ -47,7 +56,12 @@ export default function ChatPage() {
             padding: "16px",
           }}
         >
-          {/* <MessageList mensagens={[]} /> */}
+          <MessageList />
+
+          {listaDeMensagens.map((mensagemAtual) => {
+            console.log(mensagemAtual);
+            return <li>{mensagemAtual}</li>;
+          })}
 
           <Box
             as="form"
@@ -61,6 +75,12 @@ export default function ChatPage() {
               onChange={(event) => {
                 const valor = event.target.value;
                 setMensagem(valor);
+              }}
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleNovaMensagem(mensagem);
+                }
               }}
               placeholder="Insira sua mensagem aqui..."
               type="textarea"
@@ -80,87 +100,86 @@ export default function ChatPage() {
       </Box>
     </Box>
   );
-}
-
-function Header() {
-  return (
-    <>
-      <Box
-        styleSheet={{
-          width: "100%",
-          marginBottom: "16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Text variant="heading5">Chat</Text>
-        <Button
-          variant="tertiary"
-          colorVariant="neutral"
-          label="Logout"
-          href="/"
-        />
-      </Box>
-    </>
-  );
-}
-
-function MessageList(props) {
-  console.log("MessageList", props);
-  return (
-    <Box
-      tag="ul"
-      styleSheet={{
-        overflow: "scroll",
-        display: "flex",
-        flexDirection: "column-reverse",
-        flex: 1,
-        color: appConfig.theme.colors.neutrals["000"],
-        marginBottom: "16px",
-      }}
-    >
-      <Text
-        key={mensagem.id}
-        tag="li"
-        styleSheet={{
-          borderRadius: "5px",
-          padding: "6px",
-          marginBottom: "12px",
-          hover: {
-            backgroundColor: appConfig.theme.colors.neutrals[700],
-          },
-        }}
-      >
+  function Header() {
+    return (
+      <>
         <Box
           styleSheet={{
-            marginBottom: "8px",
+            width: "100%",
+            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <Image
-            styleSheet={{
-              width: "20px",
-              height: "20px",
-              borderRadius: "50%",
-              display: "inline-block",
-              marginRight: "8px",
-            }}
-            src={`https://github.com/vanessametonini.png`}
+          <Text variant="heading5">Chat</Text>
+          <Button
+            variant="tertiary"
+            colorVariant="neutral"
+            label="Logout"
+            href="/"
           />
-          <Text tag="strong">{mensagem.de}</Text>
-          <Text
-            styleSheet={{
-              fontSize: "10px",
-              marginLeft: "8px",
-              color: appConfig.theme.colors.neutrals[300],
-            }}
-            tag="span"
-          >
-            {new Date().toLocaleDateString()}
-          </Text>
         </Box>
-        {mensagem.texto}
-      </Text>
-    </Box>
-  );
+      </>
+    );
+  }
+
+  function MessageList(props) {
+    console.log("MessageList", props);
+    return (
+      <Box
+        tag="ul"
+        styleSheet={{
+          overflow: "scroll",
+          display: "flex",
+          flexDirection: "column-reverse",
+          flex: 1,
+          color: appConfig.theme.colors.neutrals["000"],
+          marginBottom: "16px",
+        }}
+      >
+        <Text
+          key={mensagem.id}
+          tag="li"
+          styleSheet={{
+            borderRadius: "5px",
+            padding: "6px",
+            marginBottom: "12px",
+            hover: {
+              backgroundColor: appConfig.theme.colors.neutrals[700],
+            },
+          }}
+        >
+          <Box
+            styleSheet={{
+              marginBottom: "8px",
+            }}
+          >
+            <Image
+              styleSheet={{
+                width: "20px",
+                height: "20px",
+                borderRadius: "50%",
+                display: "inline-block",
+                marginRight: "8px",
+              }}
+              src={`https://github.com/vanessametonini.png`}
+            />
+            <Text tag="strong">{mensagem.de}</Text>
+            <Text
+              styleSheet={{
+                fontSize: "10px",
+                marginLeft: "8px",
+                color: appConfig.theme.colors.neutrals[300],
+              }}
+              tag="span"
+            >
+              {new Date().toLocaleDateString()}
+            </Text>
+          </Box>
+          {mensagem.texto}
+        </Text>
+      </Box>
+    );
+  }
 }
