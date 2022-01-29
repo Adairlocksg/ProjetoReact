@@ -1,20 +1,48 @@
 import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import React from "react";
 import appConfig from "../config.json";
+import { createClient } from "@supabase/supabase-js";
+
+
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzQ3NjA0MSwiZXhwIjoxOTU5MDUyMDQxfQ.sTx5D1bn4oE8GBEni4YOIM2kVRPrS8Bm3mxdONFT4Ao';
+const SUPABASE_URL = 'https://shkspccboliybzacqayk.supabase.co';
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage() {
   // Sua lógica vai aqui
   const [mensagem, setMensagem] = React.useState("");
   const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-  // ./Sua lógica vai aqui
+
+  React.useEffect(() => {
+    supabaseClient
+      .from('mensagens')
+      .select('*')
+      .order('id', { ascending: false })
+      .then(({ data }) => {
+        setListaDeMensagens(data);
+      })
+  }, [])
 
   function handleNovaMensagem(novaMensagem) {
-    setListaDeMensagens([
-      ...listaDeMensagens, 
-      novaMensagem
-    ]);
-    setMensagem("");
+    const mensagem = {
+      //id: listaDeMensagens.length + 1,
+      de: 'Adairlocksg',
+      texto: novaMensagem,
+    };
+    supabaseClient
+      .from('mensagens')
+      .insert([
+        mensagem
+      ])
+      .then(({ data }) => {
+        setListaDeMensagens([
+          data[0],
+          ...listaDeMensagens,
+        ]);
+      });
+    setMensagem('');
   }
+
   return (
     <Box
       styleSheet={{
@@ -56,12 +84,7 @@ export default function ChatPage() {
             padding: "16px",
           }}
         >
-          <MessageList />
-
-          {listaDeMensagens.map((mensagemAtual) => {
-            console.log(mensagemAtual);
-            return <li>{mensagemAtual}</li>;
-          })}
+          <MessageList mensagens={listaDeMensagens} />
 
           <Box
             as="form"
@@ -125,7 +148,6 @@ export default function ChatPage() {
   }
 
   function MessageList(props) {
-    console.log("MessageList", props);
     return (
       <Box
         tag="ul"
@@ -138,47 +160,52 @@ export default function ChatPage() {
           marginBottom: "16px",
         }}
       >
-        <Text
-          key={mensagem.id}
-          tag="li"
-          styleSheet={{
-            borderRadius: "5px",
-            padding: "6px",
-            marginBottom: "12px",
-            hover: {
-              backgroundColor: appConfig.theme.colors.neutrals[700],
-            },
-          }}
-        >
-          <Box
-            styleSheet={{
-              marginBottom: "8px",
-            }}
-          >
-            <Image
-              styleSheet={{
-                width: "20px",
-                height: "20px",
-                borderRadius: "50%",
-                display: "inline-block",
-                marginRight: "8px",
-              }}
-              src={`https://github.com/vanessametonini.png`}
-            />
-            <Text tag="strong">{mensagem.de}</Text>
+        {props.mensagens.map((mensagemNova) => {
+          return (
             <Text
+              key={mensagemNova.id}
+              tag="li"
               styleSheet={{
-                fontSize: "10px",
-                marginLeft: "8px",
-                color: appConfig.theme.colors.neutrals[300],
+                borderRadius: "5px",
+                padding: "6px",
+                marginBottom: "12px",
+                hover: {
+                  backgroundColor: appConfig.theme.colors.neutrals[700],
+                },
               }}
-              tag="span"
             >
-              {new Date().toLocaleDateString()}
+              <Box
+                styleSheet={{
+                  marginBottom: "8px",
+                }}
+              >
+                <Image
+                  styleSheet={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                    marginRight: "8px",
+                  }}
+                  src={`https://github.com/${mensagemNova.de}.png`}
+                />
+                <Text tag="strong">{mensagemNova.de}</Text>
+                <Text
+                  styleSheet={{
+                    fontSize: "10px",
+                    marginLeft: "8px",
+                    color: appConfig.theme.colors.neutrals[300],
+                  }}
+                  tag="span"
+                >
+                  {new Date().toLocaleDateString()}
+                </Text>
+              </Box>
+              {mensagemNova.texto}
             </Text>
-          </Box>
-          {mensagem.texto}
-        </Text>
+          );
+        })}
+
       </Box>
     );
   }
